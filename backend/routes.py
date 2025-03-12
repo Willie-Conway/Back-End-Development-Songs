@@ -51,3 +51,44 @@ def parse_json(data):
 ######################################################################
 # INSERT CODE HERE
 ######################################################################
+
+######################################################################
+# Implement the /health endpoint
+######################################################################
+@app.route("/health", methods=["GET"])
+def healthz():
+    """Health check endpoint"""
+    return jsonify({"status": "OK"}), 200
+
+######################################################################
+# Implement the /count endpoint
+######################################################################
+@app.route("/count", methods=["GET"])
+def count():
+    """Return the number of songs in the database"""
+    count = db.songs.count_documents({})
+    return jsonify({"count": count}), 200
+
+######################################################################
+# Implement the GET /song endpoint
+######################################################################
+@app.route("/song", methods=["GET"])
+def songs():
+    """Get all songs from the database"""
+    results = list(db.songs.find({}))  # Retrieve all songs from the database
+    return jsonify({"songs": parse_json(results)}), 200
+
+######################################################################
+# Implement the GET /song/<id> endpoint
+######################################################################
+@app.route("/song/<int:id>", methods=["GET"])
+def get_song_by_id(id):
+    """Get a specific song by its ID."""
+    song = db.songs.find_one({"id": id})
+
+    if song is None:
+        return jsonify({"message": f"song with id {id} not found"}), 404
+
+    return jsonify(parse_json(song)), 200
+
+
