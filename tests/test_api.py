@@ -50,3 +50,8 @@ def test_song_not_found(client):
     
     # Assert that the response contains the correct error message
     assert res.json == {"message": f"song with id {non_existent_id} not found"}
+
+
+######################################################################
+# Implement the GET /song/<id> endpoint
+######################################################################
