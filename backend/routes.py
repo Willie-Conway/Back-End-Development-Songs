@@ -55,6 +55,7 @@ def parse_json(data):
 ######################################################################
 # Implement the /health endpoint
 ######################################################################
+
 @app.route("/health", methods=["GET"])
 def healthz():
     """Health check endpoint"""
@@ -63,6 +64,7 @@ def healthz():
 ######################################################################
 # Implement the /count endpoint
 ######################################################################
+
 @app.route("/count", methods=["GET"])
 def count():
     """Return the number of songs in the database"""
@@ -72,6 +74,7 @@ def count():
 ######################################################################
 # Implement the GET /song endpoint
 ######################################################################
+
 @app.route("/song", methods=["GET"])
 def songs():
     """Get all songs from the database"""
@@ -81,6 +84,7 @@ def songs():
 ######################################################################
 # Implement the GET /song/<id> endpoint
 ######################################################################
+
 @app.route("/song/<int:id>", methods=["GET"])
 def get_song_by_id(id):
     """Get a specific song by its ID."""
@@ -94,6 +98,7 @@ def get_song_by_id(id):
 ######################################################################
 # Implement the POST /song endpoint
 ######################################################################
+
 @app.route("/song", methods=["POST"])
 def create_song():
     """Create a new song"""
@@ -115,6 +120,7 @@ def create_song():
 ######################################################################
 # Implement the PUT /song endpoint
 ######################################################################
+
 @app.route("/song/<int:id>", methods=["PUT"])
 def update_song(id):
     """Update an existing song by its ID"""
@@ -131,16 +137,37 @@ def update_song(id):
     if not song:
         return jsonify({"message": f"song with id {id} not found"}), 404
 
+    # Check if the song data has changed, to avoid unnecessary updates
+    if song["title"] == song_data["title"] and song["lyrics"] == song_data["lyrics"]:
+        return jsonify({"message": "song found, but nothing updated"}), 200
+
     # Update the song in the database
     result = db.songs.update_one(
         {"id": id},  # Find the song by its ID
         {"$set": song_data}  # Update the song fields
     )
 
-    # If nothing was updated, return a message
-    if result.matched_count == 0:
-        return jsonify({"message": "song found, but nothing updated"}), 200
+    # If the update was successful, return the updated song
+    if result.matched_count > 0:
+        updated_song = db.songs.find_one({"id": id})
+        return jsonify(parse_json(updated_song)), 200
 
-    # Return the updated song
-    updated_song = db.songs.find_one({"id": id})
-    return jsonify(parse_json(updated_song)), 200
+    # If no song was updated, return a relevant message
+    return jsonify({"message": "song found, but nothing updated"}), 200
+
+######################################################################
+# Implement the DELETE /song/<id> endpoint
+######################################################################
+
+@app.route("/song/<int:id>", methods=["DELETE"])
+def delete_song(id):
+    """Delete a song by its ID"""
+    # Attempt to delete the song by its ID
+    result = db.songs.delete_one({"id": id})
+
+    # If no song was deleted (deleted_count is 0), return 404 with a message
+    if result.deleted_count == 0:
+        return jsonify({"message": f"song with id {id} not found"}), 404
+
+    # If the song was successfully deleted, return 204 No Content
+    return '', 204

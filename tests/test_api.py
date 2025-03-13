@@ -158,3 +158,70 @@ def test_update_song_missing_fields(client):
     
     # Assert that the response contains the correct error message
     assert res.json == {"message": "Missing required fields: title and lyrics are required."}
+
+def test_update_song_no_changes(client):
+    """Test that trying to update a song with identical data returns 'nothing updated'"""
+    song_id = 1  # Replace with an actual song id in your database
+    
+    # Same data as the current song
+    unchanged_song = {
+        "title": "Original Title",
+        "lyrics": "Original lyrics"
+    }
+
+    res = client.put(f"/song/{song_id}", json=unchanged_song)
+    
+    # Assert that the response status code is 200 OK
+    assert res.status_code == 200
+    
+    # Assert that the response message indicates nothing was updated
+    assert res.json == {"message": "song found, but nothing updated"}
+
+def test_invalid_json(client):
+    """Test that sending invalid JSON returns a 400 BAD REQUEST"""
+    res = client.put("/song/1", data='{"title": "New title", "lyrics": "New lyrics"')  # Missing closing bracket
+    assert res.status_code == 400
+    assert res.json == {"message": "Invalid JSON format"}
+
+def test_create_song_missing_data(client):
+    """Test the POST /song endpoint with missing title or lyrics"""
+    # New song data with missing lyrics
+    new_song = {
+        "id": 324,
+        "title": "Song without lyrics"
+    }
+
+    res = client.post("/song", json=new_song)
+    
+    # Assert that the response status code is 400 BAD REQUEST
+    assert res.status_code == 400
+    
+    # Assert that the response contains the correct error message
+    assert res.json == {"message": "Missing required fields: title and lyrics are required."}
+
+######################################################################
+# DELETE /song tests
+######################################################################
+
+def test_delete_song(client):
+    """Test the DELETE /song/<id> endpoint to delete a song"""
+    song_id = 1  # Replace with an actual song id that exists in your database
+    
+    # Make a DELETE request to the /song/<id> endpoint
+    res = client.delete(f"/song/{song_id}")
+    
+    # Assert that the response status code is 204 NO CONTENT
+    assert res.status_code == 204
+
+def test_delete_song_not_found(client):
+    """Test that trying to delete a non-existent song returns 404"""
+    non_existent_id = 999  # Replace with an ID that doesn't exist in your database
+    
+    # Make a DELETE request to the /song/<non_existent_id> endpoint
+    res = client.delete(f"/song/{non_existent_id}")
+    
+    # Assert that the response status code is 404 NOT FOUND
+    assert res.status_code == 404
+    
+    # Assert that the response contains the correct error message
+    assert res.json == {"message": f"song with id {non_existent_id} not found"}
