@@ -91,4 +91,56 @@ def get_song_by_id(id):
 
     return jsonify(parse_json(song)), 200
 
+######################################################################
+# Implement the POST /song endpoint
+######################################################################
+@app.route("/song", methods=["POST"])
+def create_song():
+    """Create a new song"""
+    # Extract the song data from the request body
+    song_data = request.get_json()
 
+    # Check if a song with the same ID already exists in the database
+    existing_song = db.songs.find_one({"id": song_data["id"]})
+    
+    if existing_song:
+        return jsonify({"Message": f"song with id {song_data['id']} already present"}), 302
+
+    # Insert the new song into the database
+    result = db.songs.insert_one(song_data)
+
+    # Return the inserted song ID as part of the response
+    return jsonify({"inserted id": str(result.inserted_id)}), 201
+
+######################################################################
+# Implement the PUT /song endpoint
+######################################################################
+@app.route("/song/<int:id>", methods=["PUT"])
+def update_song(id):
+    """Update an existing song by its ID"""
+    # Extract the song data from the request body
+    song_data = request.get_json()
+
+    # Validate that the required fields are present
+    if not song_data or "title" not in song_data or "lyrics" not in song_data:
+        return jsonify({"message": "Missing required fields: title and lyrics are required."}), 400
+
+    # Find the song by its ID
+    song = db.songs.find_one({"id": id})
+
+    if not song:
+        return jsonify({"message": f"song with id {id} not found"}), 404
+
+    # Update the song in the database
+    result = db.songs.update_one(
+        {"id": id},  # Find the song by its ID
+        {"$set": song_data}  # Update the song fields
+    )
+
+    # If nothing was updated, return a message
+    if result.matched_count == 0:
+        return jsonify({"message": "song found, but nothing updated"}), 200
+
+    # Return the updated song
+    updated_song = db.songs.find_one({"id": id})
+    return jsonify(parse_json(updated_song)), 200
