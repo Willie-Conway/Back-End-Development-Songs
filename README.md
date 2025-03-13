@@ -1,4 +1,4 @@
-# 🎵 Song Management API
+# Creating Get Songs Service with Flask 🐚🎵
 
 Welcome to the **Song Management API**! 🎶 This RESTful API provides endpoints for managing a collection of songs. It supports basic CRUD (Create, Read, Update, Delete) operations for song resources. Below you'll find the details of the available endpoints, solutions, and some additional guidelines for the API.
 
