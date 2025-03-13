@@ -128,7 +128,7 @@ def delete_song(id):
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/song-management-api.git
+   git clone https://github.com/your-username/Back-End-Development-Songs.git
    ```
 
 2. Install the required dependencies:
