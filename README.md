@@ -2,6 +2,8 @@
 
 Welcome to the **Song Management API**! 🎶 This RESTful API provides endpoints for managing a collection of songs. It supports basic CRUD (Create, Read, Update, Delete) operations for song resources. Below you'll find the details of the available endpoints, solutions, and some additional guidelines for the API.
 
+ ![Back End Development Songs](https://github.com/Willie-Conway/Back-End-Development-Songs/blob/c7902455ce6a2988ed974963d9254e51273afc70/Screenshots/Back%20End%20Development%20Songs.gif)
+
 ---
 
 ## 🎯 Objectives
